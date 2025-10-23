@@ -195,11 +195,21 @@
     height: 18px !important;
   }
 
-  /* Move search container below credit box */
-  #search-container {
-    top: 50px !important; /* Adjust height as needed */
+   #search-container {
+    top: 70px !important; /* Adjust height depending on final credit-box height */
+    left: 50%;
+    transform: translateX(-50%);
     width: 90%;
+    max-width: 400px;
+    position: absolute;
+    z-index: 3; /* Ensure it's above the map and not hidden */
   }
+
+  /* Make sure suggestions also show properly */
+  #suggestions {
+    top: 100%; /* Below input */
+  }
+}
 
   /* Ensure the map isn’t hidden under the credit box */
   #map {
