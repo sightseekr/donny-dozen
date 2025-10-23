@@ -165,54 +165,56 @@
 /* Mobile layout adjustments */
 @media (max-width: 600px) {
 
-#credit-box {
-  top: 0;               /* stay at the top */
-  left: 50%;            /* move the left edge to the center of the screen */
-  transform: translateX(-50%); /* shift it back by half its own width to truly center */
-  width: auto;          /* width adjusts to content */
-  max-width: 350px;     /* optional: prevent it from being too wide */
-  padding: 6px 10px;
-  font-size: 0.75em;
-  border-radius: 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-  /* Logos smaller and in a single horizontal row */
-  .credit-logos {
-    flex-direction: row;
-    margin: 0;
+  /* Credit box: centered top bar */
+  #credit-box {
+    position: absolute;
+    top: 0;                   /* stay at the top */
+    left: 50%;                /* center horizontally */
+    transform: translateX(-50%);
+    width: auto;              /* adjusts to content */
+    max-width: 350px;         /* limit width */
+    padding: 6px 10px;
+    font-size: 0.75em;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;   /* stack logos and text vertically */
+    justify-content: center;
+    align-items: center;      /* center content */
+    text-align: center;
     gap: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    z-index: 2;
+  }
+
+  /* Logos smaller and horizontal */
+  .credit-logos {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
   }
 
   .credit-logo {
     height: 18px !important;
+    width: auto;
   }
 
-   #search-container {
-    top: 70px !important; /* Adjust height depending on final credit-box height */
+  /* Search bar directly under credit box */
+  #search-container {
+    position: absolute;
+    top: calc(100% + 10px);    /* 10px below the credit box */
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    position: absolute;
-    z-index: 3; /* Ensure it's above the map and not hidden */
+    width: 90%;                 /* make it responsive */
+    max-width: 400px;           /* don’t overflow phone screen */
+    z-index: 3;
   }
 
-  /* Make sure suggestions also show properly */
+  /* Suggestions appear correctly below input */
   #suggestions {
-    top: 100%; /* Below input */
-  }
-}
-
-  /* Ensure the map isn’t hidden under the credit box */
-  #map {
-    top: 0;
+    top: 100%;
   }
 }
   </style>
