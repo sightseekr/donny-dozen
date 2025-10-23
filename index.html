@@ -162,27 +162,50 @@
 #credit-box a.doncaster-text:hover {
   text-decoration: underline !important;
 }
- /* Mobile styles for credit box */
+/* Mobile layout adjustments */
 @media (max-width: 600px) {
+
+  /* Make the credit box a thin full-width header */
   #credit-box {
-    font-size: 0.7em;         /* Make text smaller */
-    padding: 6px 8px;         /* Reduce padding */
-    max-width: 200px;         /* Limit width so it doesn't stretch */
-    top: 5px;                 /* Move slightly up/down if needed */
-    left: 5px;                /* Keep it in corner */
-    border-radius: 10px;      /* Slightly smaller rounded corners */
-    line-height: 1.2em;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    padding: 6px 10px;
+    font-size: 0.75em;
+    border-radius: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  /* Logos smaller and in a single horizontal row */
+  .credit-logos {
+    flex-direction: row;
+    margin: 0;
+    gap: 4px;
   }
 
   .credit-logo {
-    height: 18px !important;  /* Make logos smaller */
+    height: 18px !important;
   }
 
-  .collab-x {
-    font-size: 1em;           /* Make the X between logos smaller */
+  /* Move search container below credit box */
+  #search-container {
+    top: 50px !important; /* Adjust height as needed */
+    width: 90%;
+  }
+
+  /* Ensure the map isn’t hidden under the credit box */
+  #map {
+    top: 0;
   }
 }
-
   </style>
 </head>
 <body>
