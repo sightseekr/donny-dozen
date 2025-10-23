@@ -162,6 +162,27 @@
 #credit-box a.doncaster-text:hover {
   text-decoration: underline !important;
 }
+ /* Mobile styles for credit box */
+@media (max-width: 600px) {
+  #credit-box {
+    font-size: 0.7em;         /* Make text smaller */
+    padding: 6px 8px;         /* Reduce padding */
+    max-width: 200px;         /* Limit width so it doesn't stretch */
+    top: 5px;                 /* Move slightly up/down if needed */
+    left: 5px;                /* Keep it in corner */
+    border-radius: 10px;      /* Slightly smaller rounded corners */
+    line-height: 1.2em;
+  }
+
+  .credit-logo {
+    height: 18px !important;  /* Make logos smaller */
+  }
+
+  .collab-x {
+    font-size: 1em;           /* Make the X between logos smaller */
+  }
+}
+
   </style>
 </head>
 <body>
