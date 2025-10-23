@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Doncaster Ale Trail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; font-family: sans-serif; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .mapboxgl-popup-content {
+      background-color: rgba(255, 255, 255, 1) !important;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: sans-serif;
+      max-width: 220px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    .custom-popup strong {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .custom-popup p {
+      font-size: 0.85em;
+      font-style: italic;
+      margin: 0 0 6px;
+    }
+    .custom-popup .directions-btn,
+    .custom-popup .mark-visited-btn {
+      all: unset;
+      background-color: #EA736B;
+      color: white;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 0.85em;
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      max-height: 26px;
+      gap: 5px;
+      text-decoration: none;
+    }
+    .custom-popup .directions-btn:hover {
+      background-color: #d8655e;
+    }
+    #search-container {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      width: 90%;
+      max-width: 400px;
+    }
+    #search {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    #suggestions {
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 200px;
+      overflow-y: auto;
+      position: absolute;
+      width: 100%;
+      z-index: 2;
+    }
+    .suggestion {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .suggestion:hover {
+      background: #f0f0f0;
+    }
+    .no-results {
+      padding: 8px 12px;
+      color: #666;
+      font-style: italic;
+    }
+    #credit-box {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 2;
+  max-width: 280px;
+  font-size: 0.85em;
+  line-height: 1.4em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #444;
+}
+
+.credit-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.credit-logo {
+  height: 26px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.credit-logo:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+.collab-x {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #333; /* charcoal grey for X */
+}
+
+.doncaster-logo {
+  height: 24px;
+}
+
+.sightseekr-logo {
+  height: 22px;
+}
+
+#credit-box p {
+  margin: 0;
+}
+
+#credit-box a {
+  color: #EA736B; /* Sightseekr brand colour */
+  text-decoration: none;
+  font-weight: 600;
+}
+
+#credit-box a:hover {
+  text-decoration: underline;
+}
+
+#credit-box a.doncaster-text {
+  color: #333 !important; /* charcoal grey */
+  font-weight: 600;
+  text-decoration: none;
+}
+
+#credit-box a.doncaster-text:hover {
+  text-decoration: underline !important;
+}
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<div id="search-container">
+  <input type="text" id="search" placeholder="Find your next pub..." />
+  <div id="suggestions"></div>
+</div>
+<div id="credit-box">
+  <div class="credit-logos">
+    <a href="https://www.visitdoncaster.com" target="_blank" rel="noopener">
+      <img src="https://www.visitdoncaster.com/admin/resources/logo-1.svg" 
+           alt="Visit Doncaster logo" class="credit-logo doncaster-logo">
+    </a>
+    <span class="collab-x">×</span>
+    <a href="https://sightseekr.co.uk" target="_blank" rel="noopener">
+      <img src="https://static.wixstatic.com/media/f7dc79_06109c731b5f4d51b8f64ea38ea3935b~mv2.png/v1/fill/w_756,h_156,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/f7dc79_06109c731b5f4d51b8f64ea38ea3935b~mv2.png" 
+           alt="Sightseekr logo" class="credit-logo sightseekr-logo">
+    </a>
+  </div>
+ <p>
+  This map was created for 
+  <a href="https://www.visitdoncaster.com" target="_blank" class="doncaster-text">Visit Doncaster</a> 
+  by <a href="https://sightseekr.co.uk" target="_blank">Sightseekr</a>.<br>
+  For travel advice, custom itineraries & inspiration, head to <a href="https://sightseekr.co.uk" target="_blank">sightseekr.co.uk</a>.
+</p>
+</div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic2lnaHRzZWVrciIsImEiOiJjbWJheDU5dWwwbjZqMmxzYjRqaW0wZ2FoIn0.XjR_Z_6vL3dcXrVECelgiA';
+
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/sightseekr/cmh39vc4y006e01s774azf5o5',
+    center: [-1.133211, 53.523096],
+    zoom: 15.28
+  });
+
+  map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+  map.addControl(new mapboxgl.GeolocateControl({
+    positionOptions: { enableHighAccuracy: true },
+    trackUserLocation: true,
+    showUserHeading: true
+}), 'bottom-right');
+
+  const savedPoints = [
+    { name: "Stop 1: The Draughtsman Alehouse" },
+    { name: "Stop 2: The Plough" },
+    { name: "Stop 3: The Tut N Shive" },
+    { name: "Stop 4: The Red Lion - Wetherspoon" },
+    { name: "Stop 5: The Queen Crafthouse" },
+    { name: "Stop 6: The Masons Arms" },
+    { name: "Stop 7: Marketplace Alehouse" },
+    { name: "Stop 8: Don Valley Brewery Tap" },
+    { name: "Stop 9: Hallcross" },
+    { name: "Stop 10: The Salutation" },
+    { name: "Stop 11: Doncaster Brewery Tap" },
+    { name: "Stop 12: The Leopard" }
+  ];
+
+  const directionsLinks = {
+    "Stop 1: The Draughtsman Alehouse": "https://maps.app.goo.gl/SDDY5JaxexamCo1s5",
+    "Stop 2: The Plough": "https://maps.app.goo.gl/9zJm4yJANDEGQnNu7",
+    "Stop 3: The Tut N Shive": "https://maps.app.goo.gl/8iNrUmNnnJzFTY3G6",
+    "Stop 4: The Red Lion - Wetherspoon": "https://maps.app.goo.gl/DEMo8gXBfZSNKxUZ9",
+    "Stop 5: The Queen Crafthouse": "https://maps.app.goo.gl/b881wBQN7KH3YcT5A",
+    "Stop 6: The Masons Arms": "https://maps.app.goo.gl/SLr8ibV212FbX1KG7",
+    "Stop 7: Marketplace Alehouse": "https://maps.app.goo.gl/PXKmW1DpEP59Shs3A",
+    "Stop 8: Don Valley Brewery Tap": "https://maps.app.goo.gl/ChWpoxWQkiu1V7CX7",
+    "Stop 9: Hallcross": "https://maps.app.goo.gl/WsvjUQxBRH7U1T5j9",
+    "Stop 10: The Salutation": "https://maps.app.goo.gl/iWuqiKZgZsAYjt2d6",
+    "Stop 11: Doncaster Brewery Tap": "https://maps.app.goo.gl/n9fLonXoquW3K2bF7",
+    "Stop 12: The Leopard": "https://maps.app.goo.gl/H1canmwzcLtNEV158"
+  };
+
+  const fuse = new Fuse(savedPoints, {
+    keys: ['name'],
+    threshold: 0.4,
+    ignoreLocation: true,
+    includeScore: true
+  });
+
+  const searchInput = document.getElementById('search');
+  const suggestionsDiv = document.getElementById('suggestions');
+  let currentPopup = null;
+  let allFeatures = [];
+  let popupOpenedByClick = false
+  let popupHovering = false;
+
+
+  // Keep track of visited pubs, saved in localStorage
+let visitedPubs = JSON.parse(localStorage.getItem("visitedPubs")) || [];
+
+// Save back to localStorage whenever we update
+function saveVisitedPubs() {
+  localStorage.setItem("visitedPubs", JSON.stringify(visitedPubs));
+}
+
+  function isMobile() {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
+function createPopup(feature, lngLat, clicked = false) {
+  // remove any existing popup
+  if (currentPopup) {
+    currentPopup.remove();
+    currentPopup = null;
+  }
+
+  // set whether this popup is "locked" by a click
+  popupOpenedByClick = clicked;
+  // reset hover flag
+  popupHovering = false;
+
+  const name = feature.properties?.name || feature.properties?.Name || feature.properties?.title || "No title";
+  const isVisited = visitedPubs.includes(name);
+  const description = feature.properties?.description || feature.properties?.Description || "No description";
+  const directions = directionsLinks[name] || `https://www.google.com/maps/search/${encodeURIComponent(name)}`;
+
+  currentPopup = new mapboxgl.Popup({ closeButton: false })
+    .setLngLat(lngLat)
+    .setHTML(`
+      <div class="custom-popup">
+        <strong>${name}</strong>
+        <p>${description}</p>
+        <a href="${directions}" class="directions-btn" target="_blank">
+          <span>📍</span> <span>Directions</span>
+        </a>
+        <button class="directions-btn mark-visited-btn" data-pub="${name}">
+          ${isVisited ? "✅ Visited" : "✅ Mark as Visited"}
+        </button>
+      </div>
+    `)
+    .addTo(map);
+
+  // Mark-as-Visited button handler (safe check)
+  const markBtn = document.querySelector(".mark-visited-btn");
+  if (markBtn) {
+    markBtn.addEventListener("click", () => {
+      if (!visitedPubs.includes(name)) {
+        visitedPubs.push(name);
+        saveVisitedPubs();
+      }
+      markBtn.innerText = "✅ Visited";
+
+      // move to next pub
+      const currentIndex = savedPoints.findIndex(p => p.name === name);
+      const nextPub = savedPoints[currentIndex + 1];
+      if (nextPub) {
+        searchAndZoomToFeature(nextPub.name);
+      } else {
+        alert("🎉 You’ve completed the Ale Trail!");
+      }
+    });
+  }
+
+  // Popup DOM hover handlers — keep popup open while mouse is over it
+  const popupEl = document.querySelector(".mapboxgl-popup");
+  if (popupEl) {
+    popupEl.addEventListener("mouseenter", () => {
+      popupHovering = true;
+    });
+    popupEl.addEventListener("mouseleave", () => {
+      popupHovering = false;
+      // close only if not locked by click
+      if (!popupOpenedByClick && currentPopup) {
+        currentPopup.remove();
+        currentPopup = null;
+      }
+    });
+  }
+}
+
+  function searchAndZoomToFeature(name) {
+    for (let feature of allFeatures) {
+      const featureName = feature.properties?.name || feature.properties?.Name || feature.properties?.title;
+      if (featureName && featureName.toLowerCase().includes(name.toLowerCase())) {
+        const coords = feature.geometry.coordinates;
+        map.flyTo({ center: coords, zoom: 17 });
+        setTimeout(() => createPopup(feature, coords, true), 300);
+        return;
+      }
+    }
+
+    const allRenderedFeatures = map.queryRenderedFeatures();
+    for (let feature of allRenderedFeatures) {
+      const featureName = feature.properties?.name || feature.properties?.Name || feature.properties?.title;
+      if (featureName && featureName.toLowerCase().includes(name.toLowerCase())) {
+        const coords = feature.geometry.coordinates;
+        map.flyTo({ center: coords, zoom: 17 });
+        setTimeout(() => createPopup(feature, coords, true), 300);
+        return;
+      }
+    }
+
+    const matchingPoint = savedPoints.find(point => 
+      point.name.toLowerCase().includes(name.toLowerCase())
+    );
+    if (matchingPoint) {
+      const layer = ['bars'];
+      map.fitBounds([[-1.5, 53.3], [-0.8, 53.7]], { padding: 50 });
+      setTimeout(() => {
+        const features = map.queryRenderedFeatures({ layers: layer });
+        const foundFeature = features.find(f =>
+          (f.properties?.name || f.properties?.Name || f.properties?.title)?.toLowerCase().includes(name.toLowerCase())
+        );
+        if (foundFeature) {
+          const coords = foundFeature.geometry.coordinates;
+          map.flyTo({ center: coords, zoom: 17 });
+          setTimeout(() => createPopup(foundFeature, coords, true), 300);
+        } else {
+          alert(`Sorry, "${name}" was not found on the map. It may be outside the current data area or spelled differently.`);
+        }
+      }, 1000);
+      return;
+    }
+
+    alert(`"${name}" was not found. Please check the spelling or try a different search term.`);
+  }
+
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim();
+    suggestionsDiv.innerHTML = '';
+    if (!query) {
+      savedPoints.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'suggestion';
+        div.textContent = item.name;
+        div.onclick = () => {
+          searchInput.value = item.name;
+          suggestionsDiv.innerHTML = '';
+          searchAndZoomToFeature(item.name);
+        };
+        suggestionsDiv.appendChild(div);
+      });
+      return;
+    }
+    const results = fuse.search(query);
+    if (results.length) {
+      results.forEach(({ item }) => {
+        const div = document.createElement('div');
+        div.className = 'suggestion';
+        div.textContent = item.name;
+        div.onclick = () => {
+          searchInput.value = item.name;
+          suggestionsDiv.innerHTML = '';
+          searchAndZoomToFeature(item.name);
+        };
+        suggestionsDiv.appendChild(div);
+      });
+    } else {
+      const div = document.createElement('div');
+      div.className = 'no-results';
+      div.textContent = "Can't find what you're looking for? Try Google Maps or Visit Doncaster.";
+      suggestionsDiv.appendChild(div);
+    }
+  });
+
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const query = searchInput.value.trim();
+      const result = fuse.search(query)[0];
+      if (result) {
+        searchAndZoomToFeature(result.item.name);
+        suggestionsDiv.innerHTML = '';
+      }
+    }
+  });
+
+  searchInput.addEventListener('focus', () => searchInput.dispatchEvent(new Event('input')));
+
+  document.addEventListener('click', function (event) {
+    const isClickInside = searchInput.contains(event.target) || suggestionsDiv.contains(event.target);
+    if (!isClickInside) {
+      suggestionsDiv.innerHTML = '';
+    }
+  });
+
+  map.on('load', () => {
+    const popupLayers = ['bars'];
+    const nonpopupLayers = ['route', 'start', 'end'];
+    const layerToSourceLayer = {
+      'bars': 'Ale_Trail_with_stop_numbers_V-7nk5jk',
+      'route': 'route_1-23zyka',
+      'start': 'start_point_1-1e9uqp',
+      'end': 'finish_point_59zf0t'
+    };
+    const sourceId = 'composite';
+
+    function loadAllFeatures() {
+      popupLayers.forEach(layer => {
+        const sourceLayer = layerToSourceLayer[layer];
+        try {
+          const sourceFeatures = map.querySourceFeatures(sourceId, {
+            sourceLayer: sourceLayer
+          });
+          sourceFeatures.forEach(feature => {
+            const isDuplicate = allFeatures.some(existing => 
+              existing.properties && feature.properties &&
+              existing.properties.name === feature.properties.name
+            );
+            if (!isDuplicate && feature.properties && feature.properties.name) {
+              allFeatures.push(feature);
+            }
+          });
+        } catch (error) {
+          const renderedFeatures = map.queryRenderedFeatures({ layers: [layer] });
+          renderedFeatures.forEach(feature => {
+            const isDuplicate = allFeatures.some(existing => 
+              existing.properties && feature.properties &&
+              existing.properties.name === feature.properties.name
+            );
+            if (!isDuplicate && feature.properties && feature.properties.name) {
+              allFeatures.push(feature);
+            }
+          });
+        }
+      });
+    }
+
+    map.on('data', (e) => {
+      if (e.dataType === 'source' && e.sourceId === sourceId) {
+        allFeatures = [];
+        loadAllFeatures();
+      }
+    });
+
+    map.once('idle', () => {
+      if (allFeatures.length === 0) {
+        loadAllFeatures();
+      }
+    });
+
+if (!isMobile()) {
+  popupLayers.forEach(layer => {
+    // Hover: show popup (not locked)
+    map.on('mouseenter', layer, e => {
+      map.getCanvas().style.cursor = 'pointer';
+      createPopup(e.features[0], e.lngLat, false);
+    });
+
+    // When leaving the marker: wait a short tick and only close if
+    // not hovering the popup and not clicked (locked)
+    map.on('mouseleave', layer, () => {
+      map.getCanvas().style.cursor = '';
+      setTimeout(() => {
+        if (!popupOpenedByClick && !popupHovering && currentPopup) {
+          currentPopup.remove();
+          currentPopup = null;
+        }
+      }, 40); // tiny delay to allow mouse to enter popup
+    });
+
+    // Click on marker: open popup and lock it (until clicking map background)
+    map.on('click', layer, e => {
+      if (currentPopup) currentPopup.remove();
+      createPopup(e.features[0], e.lngLat, true);
+    });
+  });
+}else {
+    // Mobile: only click to open popup (no hover)
+    popupLayers.forEach(layer => {
+        map.on('click', layer, e => {
+        if (currentPopup) currentPopup.remove();
+        createPopup(e.features[0], e.lngLat, true);
+        });
+    });
+}
+    // Click on map background: close any open popup
+    map.on('click', (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: layers });
+      if (features.length === 0 && currentPopup) {
+        currentPopup.remove();
+        currentPopup = null;
+        popupOpenedByClick = false;
+      }
+    });
+  });
+</script>
+</body>
+</html> 
