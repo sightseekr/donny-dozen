@@ -162,24 +162,22 @@
 #credit-box a.doncaster-text:hover {
   text-decoration: underline !important;
 }
-/* Mobile layout adjustments */
 @media (max-width: 600px) {
-
   /* Credit box: centered top bar */
   #credit-box {
     position: absolute;
-    top: 0;                   /* stay at the top */
-    left: 50%;                /* center horizontally */
+    top: 10px;              /* top of the page */
+    left: 50%;              /* horizontal center */
     transform: translateX(-50%);
-    width: auto;              /* adjusts to content */
-    max-width: 350px;         /* limit width */
+    width: auto;            /* adjusts to content */
+    max-width: 350px;
     padding: 6px 10px;
     font-size: 0.75em;
     border-radius: 0;
     display: flex;
-    flex-direction: column;   /* stack logos and text vertically */
+    flex-direction: column;
     justify-content: center;
-    align-items: center;      /* center content */
+    align-items: center;
     text-align: center;
     gap: 4px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -204,14 +202,13 @@
   /* Search bar directly under credit box */
   #search-container {
     position: absolute;
-    top: calc(100% + 10px);    /* 10px below the credit box */
+    top: calc(10px + var(--credit-box-height, 80px) + 10px); /* top + box height + gap */
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;                 /* make it responsive */
-    max-width: 400px;           /* don’t overflow phone screen */
+    width: 90%;
+    max-width: 400px;
     z-index: 3;
   }
-
   /* Suggestions appear correctly below input */
   #suggestions {
     top: 100%;
