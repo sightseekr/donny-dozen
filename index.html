@@ -166,24 +166,21 @@
 @media (max-width: 600px) {
 
 #credit-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* centers both horizontally and vertically */
-  width: 350px; 
-  max-width: 90%;
-  padding: 12px 16px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.95);
+  top: 0;               /* stay at the top */
+  left: 50%;            /* move the left edge to the center of the screen */
+  transform: translateX(-50%); /* shift it back by half its own width to truly center */
+  width: auto;          /* width adjusts to content */
+  max-width: 350px;     /* optional: prevent it from being too wide */
+  padding: 6px 10px;
+  font-size: 0.75em;
+  border-radius: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
   text-align: center;
   gap: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  font-size: 0.85em;
-  color: #444;
-  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
   /* Logos smaller and in a single horizontal row */
