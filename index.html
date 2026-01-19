@@ -162,56 +162,24 @@
 #credit-box a.doncaster-text:hover {
   text-decoration: underline !important;
 }
+/* Mobile styles for credit box */
 @media (max-width: 600px) {
-  /* Credit box: centered top bar */
   #credit-box {
-    position: absolute;
-    top: 10px;              /* top of the page */
-    left: 50%;              /* horizontal center */
-    transform: translateX(-50%);
-    width: 90%;            /* adjusts to content */
-    max-width: 400px;
-    padding: 4px 8px;
-    font-size: 0.75em;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 2px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    z-index: 2;
-  }
-
-  /* Logos smaller and horizontal */
-  .credit-logos {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    margin: 0;
+    font-size: 0.7em;         /* Make text smaller */
+    padding: 6px 8px;         /* Reduce padding */
+    max-width: 200px;         /* Limit width so it doesn't stretch */
+    top: 5px;                 /* Move slightly up/down if needed */
+    left: 5px;                /* Keep it in corner */
+    border-radius: 10px;      /* Slightly smaller rounded corners */
+    line-height: 1.2em;
   }
 
   .credit-logo {
-    height: 18px !important;
-    width: auto;
+    height: 18px !important;  /* Make logos smaller */
   }
 
-  /* Search bar directly under credit box */
-  #search-container {
-    position: absolute;
-    top: calc(10px + var(--credit-box-height, 80px) + 10px); /* top + box height + gap */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    z-index: 3;
-  }
-  /* Suggestions appear correctly below input */
-  #suggestions {
-    top: 100%;
+  .collab-x {
+    font-size: 1em;           /* Make the X between logos smaller */
   }
 }
   </style>
@@ -242,13 +210,13 @@
 </p>
 </div>
 <script>
-  mapboxgl.accessToken = 'pk.eyJ1Ijoic2lnaHRzZWVrciIsImEiOiJjbWgxdmNsZ2owc3h2MDhxcGdiZno4c3ptIn0.ODNk5NVKUxNh0b9QoL5tqQ';
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic2lnaHRzZWVrciIsImEiOiJjbWJheDU5dWwwbjZqMmxzYjRqaW0wZ2FoIn0.XjR_Z_6vL3dcXrVECelgiA';
 
   const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/sightseekr/cmh39vc4y006e01s774azf5o5',
+    style: 'mapbox://styles/sightseekr/cmkkbg2ry008t01s50xu3ckax',
     center: [-1.133211, 53.523096],
-    zoom: 14.00
+    zoom: 15.28
   });
 
   map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
@@ -415,7 +383,7 @@ function createPopup(feature, lngLat, clicked = false) {
       const layer = ['bars'];
       map.fitBounds([[-1.5, 53.3], [-0.8, 53.7]], { padding: 50 });
       setTimeout(() => {
-        const features = map.queryRenderedFeatures({ layers: layer });
+        const features = map.queryRenderedFeatures({ layers: popupLayers });
         const foundFeature = features.find(f =>
           (f.properties?.name || f.properties?.Name || f.properties?.title)?.toLowerCase().includes(name.toLowerCase())
         );
@@ -493,12 +461,11 @@ function createPopup(feature, lngLat, clicked = false) {
 
   map.on('load', () => {
     const popupLayers = ['bars'];
-    const nonpopupLayers = ['route', 'start', 'end'];
+    const nonpopupLayers = ['route', 'start'];
     const layerToSourceLayer = {
       'bars': 'Ale_Trail_with_stop_numbers_V-7nk5jk',
       'route': 'route_1-23zyka',
       'start': 'start_point_1-1e9uqp',
-      'end': 'finish_point_59zf0t'
     };
     const sourceId = 'composite';
 
